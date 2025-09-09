@@ -75,7 +75,7 @@
                 </div>
             </div>
 
-            <!-- New: Monthly Sales Chart -->
+            <!-- Monthly Sales Chart -->
             <div class="card">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">المبيعات الشهرية</h2>
                 <div class="chart-container">
@@ -102,8 +102,8 @@
                 </div>
             </div>
 
-            <!-- New: Top Customers Table -->
-            <div class="card lg:col-span-2">
+            <!-- Top Customers Table -->
+            <div class="card">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">أفضل 5 عملاء</h2>
                 <div class="overflow-x-auto">
                     <table class="min-w-full bg-white rounded-xl shadow-sm text-right">
@@ -115,6 +115,25 @@
                             </tr>
                         </thead>
                         <tbody id="topCustomersTable" class="text-gray-600 text-sm font-light">
+                            <!-- Data will be inserted here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- New: Average Sales per Product Table -->
+            <div class="card">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">متوسط المبيعات لكل منتج</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white rounded-xl shadow-sm text-right">
+                        <thead>
+                            <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                                <th class="py-3 px-6 text-right">المنتج</th>
+                                <th class="py-3 px-6 text-right">متوسط سعر البيع</th>
+                                <th class="py-3 px-6 text-right">الكمية المباعة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="avgProductSalesTable" class="text-gray-600 text-sm font-light">
                             <!-- Data will be inserted here by JavaScript -->
                         </tbody>
                     </table>
@@ -206,6 +225,14 @@
             const monthlyLabels = Object.values(monthlySales).map(m => m.label);
             const monthlyData = Object.values(monthlySales).map(m => m.totalSales);
 
+            // NEW: Prepare data for average product sales
+            const avgProductSalesData = Object.entries(productsData).map(([product, data]) => ({
+                product,
+                averageSales: data.totalSales / data.totalQuantity,
+                totalQuantity: data.totalQuantity
+            }));
+            const sortedAvgProducts = avgProductSalesData.sort((a, b) => b.averageSales - a.averageSales);
+
 
             // 4. Create charts using Chart.js
             createBarChart('salesByCategoryChart', categories, categorySales, 'المبيعات ($)', 'المبيعات حسب الفئة');
@@ -247,6 +274,20 @@
                     <td class="py-3 px-6 text-right">${data.orderCount}</td>
                 `;
                 tableBodyCustomers.appendChild(row);
+            });
+            
+            // NEW: 7. Populate Average Sales per Product Table
+            const avgProductSalesTableBody = document.getElementById('avgProductSalesTable');
+            avgProductSalesTableBody.innerHTML = '';
+            sortedAvgProducts.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'border-b hover:bg-gray-100';
+                row.innerHTML = `
+                    <td class="py-3 px-6 text-right">${item.product}</td>
+                    <td class="py-3 px-6 text-right">$${item.averageSales.toFixed(2)}</td>
+                    <td class="py-3 px-6 text-right">${item.totalQuantity}</td>
+                `;
+                avgProductSalesTableBody.appendChild(row);
             });
 
         }
